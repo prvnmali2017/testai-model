@@ -1,0 +1,33 @@
+import argparse
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+# Define command-line arguments
+parser = argparse.ArgumentParser(description="Sentiment Analysis with Transformer")
+parser.add_argument("text", type=str, help="Input text for sentiment analysis")
+
+# Parse command-line arguments
+args = parser.parse_args()
+
+# Load a pre-trained sentiment analysis model and tokenizer
+model_name = "distilbert-base-uncased"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
+
+# Tokenize the input text
+input_ids = tokenizer.encode(args.text, add_special_tokens=True, return_tensors="pt")
+
+# Perform inference with the model
+output = model(input_ids)
+
+# Get the predicted sentiment class
+predicted_class = torch.argmax(output.logits, dim=1).item()
+
+# Decode the sentiment class
+sentiment_classes = ['Very Negative', 'Negative', 'Neutral', 'Positive', 'Very Positive']
+predicted_sentiment = sentiment_classes[predicted_class]
+
+# Print the sentiment analysis result
+print(f"Input text: {args.text}")
+print(f"Predicted sentiment: {predicted_sentiment}")
